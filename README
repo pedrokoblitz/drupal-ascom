@@ -1,0 +1,16 @@
+AsCom - theme and module for Drupal lightweight news website
+
+Before installing the theme some modifications must be made to the content type structure
+
+Articles
+	-> subtitle
+	-> featured_image
+	-> gallery
+	-> youtube_url
+
+Pages
+	-> subtitle
+	-> featured_image
+
+----//----
+

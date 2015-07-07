@@ -1,0 +1,9 @@
+name = Ascom
+description = Article Management and Display
+package = Content
+core = 7.x
+files[] = ascom.module
+files[] = adapters.inc
+;dependencies[] = autoload
+php = 5.2
+

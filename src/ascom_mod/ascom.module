@@ -1,0 +1,169 @@
+<?php
+
+
+/*
+ * include file modules/ascom/adapters.inc
+ */
+module_load_include('inc', 'ascom', 'adapters');
+
+/*
+ * Implements hook_help()
+ */
+function ascom_help($path, $arg) {
+	if ($path == 'admin/help#first') {
+		return t('This module generates blocks and pages for listing articles');
+	}
+}
+
+
+/*
+ * Implements hook_menu()
+ */
+function ascom_menu() {
+	$items['articles'] = array(
+		'page callback' => 'article_helper',
+		'access arguments' => array('access content'),
+	);
+
+	return $items;
+}
+
+
+/*
+ * Implements hook_theme_registry_alter()
+ */
+function ascom_theme_registry_alter(&$theme_registry) {
+
+	$mod_path = drupal_get_path('module', 'Ascom').'/theme';
+	$theme_registry_copy = $theme_registry;
+	_theme_process_registry($theme_registry_copy, 'phptemplate', 'theme_engine', 'pow', $mod_path);
+
+	$theme_registry += array_diff_key($theme_registry_copy, $theme_registry);
+	$hooks = array('node','block','front_page');
+	foreach ($hooks as $h) {
+		insert_after_first_element($theme_registry[$h]['theme paths'], $mod_path);
+	}
+}
+
+
+/**
+* Implements hook_preprocess_node().
+*/
+function ascom_preprocess_node(&$vars) {
+	$vars['theme_hook_suggestions'][] = 'node__' . $vars['type'] . '__'.$vars['view_mode'];
+} 
+
+/*
+ * Helper function for re-ordering arrays (needed by theme_registry_alter)
+ */
+function insert_after_first_element(&$a, $element) {
+	if(is_array($a)) {
+		$first_element = array_shift($a);
+		array_unshift($a, $first_element, $element);
+	}
+}
+
+
+/*
+ * Implements hook_block_info()
+ */
+function ascom_block_info() {
+	$blocks = array();
+
+	//block--module--delta.tpl.php
+
+	$blocks['home_article_carousel'] = array(
+		'info' => t('Home Page Article Carousel'),
+	);
+
+	$blocks['internal_article_carousel'] = array(
+		'info' => t('Internal Article Carousel'),
+	);
+
+	$blocks['latest_articles'] = array(
+		'info' => t('Latest Articles'),
+	);
+
+	return $blocks;
+}
+
+/*
+ * Implements hook_block_view()
+ */
+function ascom_block_view($block_name = '') {
+	$block = ascom_block_adapter($block_name);
+	return $block();
+}
+
+/**
+* Implements hook_entity_info_alter()
+*
+*
+*/
+function ascom_entity_info_alter(&$entity_info) {
+	$entity_info['node']['view modes'] += array(
+		'carousel' => array(
+			'label' => t('Carousel'),
+			'custom settings' => FALSE,
+		),
+		'side_carousel' => array(
+			'label' => t('Side Carousel'),
+			'custom settings' => FALSE,
+		),
+		'list' => array(
+			'label' => t('List'),
+			'custom settings' => FALSE,
+		),
+		'side' => array(
+			'label' => t('Side'),
+			'custom settings' => FALSE,
+		),
+	);
+} 
+
+
+
+/**
+* Implements hook_field_formatter_info().
+*
+function ascom_field_formatter_info() {
+	return array(
+		'ascom_noticia_retranca' => array(
+			'label' => t('Formato da retranca'),
+			'field types' => array('text'),
+		),
+	);
+}
+*/
+
+/**
+* Implements hook_field_formatter_view().
+*
+
+function ascom_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+	$element = array();
+	switch ($display['type']) {
+		case 'ascom_noticia_retranca':
+			foreach ($items as $delta => $item) {
+				// formata os campos dentro do elemento selecionado
+				$element[$delta] = array(
+					'#type' => 'html_tag',
+					'#tag' => 'p',
+					'#attributes' => array(
+						'style' => 'color: #f00',
+					),
+					'#value' => t($item['safe_value']),
+				);
+			}
+		break;
+	}
+
+	return $element;
+}
+
+*/
+
+?>
+
+
+
